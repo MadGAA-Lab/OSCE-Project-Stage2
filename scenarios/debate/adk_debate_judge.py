@@ -204,12 +204,19 @@ def main():
     api_key = args.api_key or os.getenv("API_KEY")
     base_url = args.base_url or os.getenv("BASE_URL")
     model = args.model or os.getenv("DEFAULT_MODEL", "gemini-2.0-flash")
+    azure_api_version = os.getenv("AZURE_OPENAI_API_VERSION")
 
     # Create OpenAI client (works with OpenAI, Azure, and most compatible APIs)
-    client = OpenAI(
-        api_key=api_key,
-        base_url=base_url
-    )
+    client_kwargs = {
+        "api_key": api_key,
+        "base_url": base_url,
+    }
+    
+    # Add Azure-specific headers if API version is set
+    if azure_api_version:
+        client_kwargs["default_headers"] = {"api-version": azure_api_version}
+    
+    client = OpenAI(**client_kwargs)
 
     agent = DebateJudgeOpenAI(client, model)
     executor = GreenExecutor(agent)
