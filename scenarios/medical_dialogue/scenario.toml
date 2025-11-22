@@ -30,8 +30,9 @@ cmd = "python scenarios/medical_dialogue/purple_agents/doctor_agent.py --host 12
 #   persona_ids = ["INTJ_M_PNEUMO"]  # Evaluate single persona
 #   persona_ids = ["INTJ_M_PNEUMO", "ESFP_F_LUNG"]  # Evaluate specific personas
 #   persona_ids = ["all"]  # Evaluate all 64 personas (takes time!)
+#   persona_ids = ["random"]  # Randomly select MBTI, gender, and case each run
 
-persona_ids = ["INTJ_M_PNEUMO"]
+persona_ids = ["random"]
 
 # Maximum dialogue rounds per persona
 max_rounds = 5

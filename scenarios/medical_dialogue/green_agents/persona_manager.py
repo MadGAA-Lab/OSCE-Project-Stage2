@@ -3,6 +3,7 @@ Persona Manager - Utility to load prompt templates for patient personas
 """
 
 import os
+import random
 from pathlib import Path
 
 
@@ -128,14 +129,21 @@ class PersonaManager:
     
     def expand_persona_ids(self, persona_ids: list[str]) -> list[str]:
         """
-        Expand persona_ids list, handling "all" keyword
+        Expand persona_ids list, handling "all" and "random" keywords
         
         Args:
-            persona_ids: List that may contain "all" or specific persona IDs
+            persona_ids: List that may contain "all", "random", or specific persona IDs
         
         Returns:
             Expanded list of specific persona IDs
         """
         if "all" in persona_ids:
             return self.get_all_persona_ids()
+        if "random" in persona_ids:
+            # Generate a random persona: random MBTI + random gender + random case
+            mbti = random.choice(MBTI_TYPES)
+            gender_code = random.choice(["M", "F"])
+            case_code = random.choice(["PNEUMO", "LUNG"])
+            random_persona = f"{mbti}_{gender_code}_{case_code}"
+            return [random_persona]
         return persona_ids
