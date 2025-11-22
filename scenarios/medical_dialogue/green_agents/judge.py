@@ -66,6 +66,7 @@ class MedicalJudge(GreenAgent):
         self.patient_retry_delay = 2
         self.judge_max_retries = 5
         self.judge_retry_delay = 3
+        self.passing_score_threshold = 70
         self._required_roles = ["doctor"]
         self._required_config_keys = ["persona_ids", "max_rounds"]
         self._client = client
@@ -95,6 +96,9 @@ class MedicalJudge(GreenAgent):
         self.patient_retry_delay = retry_config.get("patient_retry_delay", 2)
         self.judge_max_retries = retry_config.get("judge_max_retries", 5)
         self.judge_retry_delay = retry_config.get("judge_retry_delay", 3)
+        
+        # Get passing score threshold from config
+        self.passing_score_threshold = config.get("passing_score_threshold", 70)
         
         # Recreate judge components with new retry settings
         self.scoring_engine = PerRoundScoringEngine(
@@ -197,26 +201,20 @@ class MedicalJudge(GreenAgent):
                 mean_aggregate_score=mean_score,
                 overall_summary=overall_summary
             )
+            logger.info(f"Medical Evaluation Result:\n{medical_result.model_dump_json(indent=2)}")
             
             # Create base EvalResult for compatibility with agentbeats infrastructure
             result = EvalResult(
-                winner="doctor" if mean_score >= 70 else "evaluation_complete",
-                detail={
-                    "mean_aggregate_score": mean_score,
-                    "total_personas": len(sessions),
-                    "overall_summary": overall_summary,
-                    "full_results": medical_result.model_dump()
-                }
+                winner="doctor" if mean_score >= self.passing_score_threshold else "evaluation_complete",
+                detail=medical_result.model_dump()
             )
             
             # Add artifacts
             await updater.add_artifact(
                 parts=[
-                    Part(root=TextPart(text=f"Mean Aggregate Score: {mean_score:.2f}")),
-                    Part(root=TextPart(text=overall_summary)),
-                    Part(root=TextPart(text=medical_result.model_dump_json(indent=2))),
+                    Part(root=TextPart(text=result.model_dump_json(indent=2))),
                 ],
-                name="Evaluation Result",
+                name="Result",
             )
             
             logger.info(f"Evaluation complete! Mean score: {mean_score:.2f}")
@@ -386,9 +384,9 @@ class MedicalJudge(GreenAgent):
         logger.info(f"Session complete: {report.final_outcome}, aggregate score: {report.aggregate_score:.2f}")
         
         return session, report
-    
+
+    @staticmethod
     def _build_doctor_context(
-        self,
         clinical_info: PatientClinicalInfo,
         turns: list[DialogueTurn]
     ) -> str:
@@ -428,16 +426,17 @@ This is your first message to the patient. Your goal is to:
 Provide your opening message to the patient."""
         
         return context
-    
-    def _build_dialogue_transcript(self, turns: list[DialogueTurn]) -> str:
+
+    @staticmethod
+    def _build_dialogue_transcript(turns: list[DialogueTurn]) -> str:
         """Build readable dialogue transcript"""
         transcript = ""
         for turn in turns:
             transcript += f"{turn.speaker.upper()}: {turn.message}\n\n"
         return transcript
-    
+
+    @staticmethod
     def _generate_batch_summary(
-        self,
         sessions: list[DialogueSession],
         reports: list[PerformanceReport],
         mean_score: float
