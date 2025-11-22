@@ -191,6 +191,9 @@ class MedicalJudge(GreenAgent):
             # Generate overall summary
             overall_summary = self._generate_batch_summary(sessions, reports, mean_score)
             
+            # Determine winner based on outcomes
+            winner = self._determine_winner(sessions, mean_score)
+            
             # Create MedicalEvalResult (internal detailed structure)
             medical_result = MedicalEvalResult(
                 assessment_id=str(uuid4()),
@@ -205,7 +208,7 @@ class MedicalJudge(GreenAgent):
             
             # Create base EvalResult for compatibility with agentbeats infrastructure
             result = EvalResult(
-                winner="doctor" if mean_score >= self.passing_score_threshold else "evaluation_complete",
+                winner=winner,
                 detail=medical_result.model_dump()
             )
             
@@ -435,6 +438,35 @@ Provide your opening message to the patient."""
             transcript += f"{turn.speaker.upper()}: {turn.message}\n\n"
         return transcript
 
+    def _determine_winner(self, sessions: list[DialogueSession], mean_score: float) -> str:
+        """
+        Determine winner based on dialogue outcomes
+        
+        Rules:
+        - If ANY patient left: doctor fails (winner = "patient")
+        - If ALL patients accepted: doctor wins (winner = "doctor")
+        - If mixed or all max_rounds_reached: use score threshold (winner = "doctor" if score >= threshold else "patient")
+        
+        Args:
+            sessions: List of all dialogue sessions
+            mean_score: Average score across all sessions
+        
+        Returns:
+            Winner identifier: "doctor" or "patient"
+        """
+        outcomes = [session.final_outcome for session in sessions]
+        
+        # Check if any patient left
+        if "patient_left" in outcomes:
+            return "patient"
+        
+        # Check if all patients accepted
+        if all(outcome == "patient_accepted" for outcome in outcomes):
+            return "doctor"
+        
+        # Mixed outcomes or all max_rounds_reached: use score threshold
+        return "doctor" if mean_score >= self.passing_score_threshold else "patient"
+    
     @staticmethod
     def _generate_batch_summary(
         sessions: list[DialogueSession],
