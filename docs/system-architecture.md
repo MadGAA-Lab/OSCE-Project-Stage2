@@ -668,14 +668,18 @@ sequenceDiagram
 **Generates patient persona from prompt templates:**
 
 **Process:**
-1. Loads 3 prompts: MBTI type + gender + medical case (.txt files)
-2. Combines using LLM to create coherent background story
-3. Generates complete system prompt (personality + background + concerns)
-4. Extracts PatientClinicalInfo subset for Doctor Agent (age, gender, illness, diagnosis)
+1. Loads 3 prompt files: MBTI type (e.g., `intj.txt`) + gender (e.g., `male.txt`) + medical case (e.g., `pneumothorax.txt`)
+2. Concatenates prompts and uses single LLM call to synthesize coherent patient system prompt
+3. LLM generates: age, occupation, background story, personality-driven concerns, and behavioral patterns
+4. Extracts PatientClinicalInfo subset for Doctor Agent (age, gender, illness, diagnosis, treatment)
 
-**Output:** Full system prompt (for Patient) + clinical info (for Doctor)
+**Output:** 
+- Full system prompt (for Patient Agent) - includes personality, background, concerns
+- PatientClinicalInfo (for Doctor Agent) - clinical facts only, NO personality
 
-**Example:** MBTI (intj.txt) + Gender (male.txt) + Case (pneumothorax.txt) → "You are a 45-year-old male software engineer with INTJ personality..."
+**Example:** MBTI (intj.txt) + Gender (male.txt) + Case (pneumothorax.txt) → "You are a 45-year-old male software engineer with INTJ personality traits..."
+
+**Implementation:** Similar to debate judge pattern, uses LLM with structured output for consistent persona generation.
 
 ---
 
@@ -848,3 +852,28 @@ max_rounds = 5
 - Gender: M (male), F (female)
 - Case: PNEUMO (pneumothorax), LUNG (lung_cancer)
 - Example: `INTJ_M_PNEUMO`, `ESFP_F_LUNG`, or `"all"`
+
+**Note:** Environment variables (API_KEY, BASE_URL, DEFAULT_MODEL) are configured at the main system level (see root `README.md` and `sample.env`), not in this scenario-specific configuration.
+
+## A2A Message Format
+
+All agent communication uses the A2A protocol (see [a2a-protocol.org](https://a2a-protocol.org) for full specification).
+
+**Key message patterns in this scenario:**
+
+1. **Judge → Doctor (Request doctor's response)**
+   - Sends: PatientClinicalInfo (age, gender, illness, diagnosis, treatment) + dialogue history
+   - Via: `POST /tasks` with message content
+   - Doctor returns: Text message with doctor's response
+
+2. **Judge → Patient (Forward doctor's message)**
+   - Sends: Doctor's latest message + dialogue context
+   - Via: A2A client message to patient agent
+   - Patient returns: Text message with patient's response (personality-driven)
+
+3. **Judge → Judge (Internal evaluation)**
+   - Per-Round Scoring: LLM call with structured output (RoundEvaluation)
+   - Stop Detection: LLM call with structured output (StopDecision)
+   - Report Generation: LLM call with structured output (PerformanceReport)
+
+All agents follow the same A2A server pattern as `scenarios/debate/debater.py`.
