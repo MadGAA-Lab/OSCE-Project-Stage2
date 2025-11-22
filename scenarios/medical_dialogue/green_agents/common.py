@@ -30,12 +30,6 @@ class PatientClinicalInfo(BaseModel):
     case_background: str  # Clinical facts about the case
 
 
-class MedicalCase(BaseModel):
-    """Medical condition template - used to generate case-specific prompts"""
-    case_id: str  # "pneumothorax" or "lung_cancer"
-    case_prompt: str  # Complete text description
-
-
 class RoundEvaluation(BaseModel):
     """Per-round evaluation results"""
     round_number: int  # Which round was evaluated
