@@ -248,6 +248,12 @@ class MedicalJudge(GreenAgent):
             
             logger.info(f"Doctor: {doctor_message[:100]}...")
             
+            # Show doctor's message in status update
+            await updater.update_status(
+                TaskState.working,
+                new_agent_text_message(f"  Doctor: {doctor_message}")
+            )
+            
             # === Patient's turn ===
             logger.info(f"Generating patient response...")
             patient_response = patient.respond(doctor_message)
@@ -262,6 +268,12 @@ class MedicalJudge(GreenAgent):
             session.turns.append(patient_turn)
             
             logger.info(f"Patient: {patient_response[:100]}...")
+            
+            # Show patient's message in status update
+            await updater.update_status(
+                TaskState.working,
+                new_agent_text_message(f"  Patient: {patient_response}")
+            )
             
             # === Per-Round Evaluation ===
             logger.info(f"Evaluating round {round_num}...")
