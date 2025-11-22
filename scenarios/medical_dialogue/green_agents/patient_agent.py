@@ -3,10 +3,28 @@ Patient Agent - Simulates patient with personality-driven behavior
 """
 
 import logging
+import random
+import time
 from openai import OpenAI
 from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam
 
 logger = logging.getLogger(__name__)
+
+# Retry configuration
+MAX_RETRIES = 3
+RETRY_DELAY = 2  # seconds
+
+# Diverse fallback messages when API fails - natural patient responses
+FALLBACK_MESSAGES = [
+    "Sorry, what were you saying? I zoned out for a second there.",
+    "Wait, can you repeat that? I'm having trouble focusing right now.",
+    "I... I'm not sure what to say to that.",
+    "Hold on, I need to think about this for a moment.",
+    "I'm sorry, my mind is just racing right now.",
+    "Can we slow down? This is a lot to process.",
+    "I don't know... I'm really confused about all this.",
+    "Everything you're saying is just... it's overwhelming.",
+]
 
 
 class PatientAgent:
@@ -76,13 +94,46 @@ class PatientAgent:
                     role="assistant"
                 ))
         
-        # Generate patient response
-        completion = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-        )
+        # Generate patient response with retry logic
+        patient_response = None
+        last_error = None
         
-        patient_response = completion.choices[0].message.content
+        for attempt in range(MAX_RETRIES):
+            try:
+                logger.info(f"Generating patient response (attempt {attempt + 1}/{MAX_RETRIES})")
+                
+                completion = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                )
+                
+                patient_response = completion.choices[0].message.content
+                
+                # Check if response is valid
+                if patient_response is not None and len(patient_response.strip()) > 0:
+                    logger.info(f"Patient generated response ({len(patient_response)} chars)")
+                    break
+                else:
+                    logger.warning(f"Attempt {attempt + 1}: API returned empty or None content")
+                    last_error = "Empty or None response from API"
+                    
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed: {e}")
+                last_error = str(e)
+                
+            # Wait before retry (exponential backoff)
+            if attempt < MAX_RETRIES - 1:
+                delay = RETRY_DELAY * (2 ** attempt)
+                logger.info(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+        
+        # Handle final failure
+        if patient_response is None or len(patient_response.strip()) == 0:
+            error_msg = f"Failed to generate patient response after {MAX_RETRIES} attempts. Last error: {last_error}"
+            logger.error(error_msg)
+            # Use a random fallback message to maintain natural conversation flow
+            patient_response = random.choice(FALLBACK_MESSAGES)
+            logger.info(f"Using fallback message: {patient_response[:50]}...")
         
         # Add patient's response to history
         self.dialogue_history.append({
@@ -90,7 +141,6 @@ class PatientAgent:
             "content": patient_response
         })
         
-        logger.info(f"Patient generated response ({len(patient_response)} chars)")
         return patient_response
     
     def get_dialogue_history(self) -> list[dict]:
