@@ -1032,9 +1032,3 @@ OSEC-Project/
 ├── README.md                        # Main project README
 └── LICENSE
 ```
-
-**Key Simplifications**:
-- Prompts stored as simple .txt files (20 total: 16 MBTI + 2 gender + 2 case)
-- No complex JSON config files
-- Patient Constructor dynamically combines prompts
-- Minimal code structure for easier implementation
