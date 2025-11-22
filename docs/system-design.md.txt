@@ -1,0 +1,397 @@
+# System Name
+
+### Table of Contents
+
+1. [System Overview](#system-overview)
+2. [Technical Architecture](#technical-architecture)
+3. [Functional Requirements](#functional-requirements)
+4. [Data Models](#data-models)
+5. [System Architecture Diagram](#system-architecture-diagram)
+6. [API Flow Diagrams](#api-flow-diagrams)
+7. [Front-End Interface Design](#front-end-interface-design)
+8. [Component Specifications](#component-specifications)
+9. [Repository Layout](#repository-layout)
+
+---
+
+# 1. System Overview
+
+Describe the high-level purpose of the system, including its role, intended users, and the typical operational flow.
+
+### Template
+
+```
+[User flow description — written as a sequential process using arrows →]
+
+Key Value Propositions:
+- [Value proposition 1]
+- [Value proposition 2]
+- [Value proposition 3]
+- [Value proposition 4]
+
+System Characteristics:
+- [Frontend-only? Backend? Hybrid?]
+- [How the system stores or persists data]
+- [Any security or privacy considerations]
+```
+
+---
+
+### Example
+
+```
+User uploads a dataset → selects analysis options → runs processing →
+the system generates insights → user exports results.
+
+Key Value Propositions:
+- Automated data analysis pipeline
+- High-performance processing with parallel workers
+- Zero-install user experience
+- Real-time preview of processed insights
+
+System Characteristics:
+- Hybrid system with browser UI and backend API workers
+- Cloud object storage for uploaded datasets
+- All sensitive data encrypted at rest within the storage layer
+```
+
+---
+
+# 2. Technical Architecture
+
+Describe each layer of the system along with the technologies or tools used.
+Include the developer-facing rationale when appropriate.
+
+### Template Table
+
+| Layer                | Technology / Tool | Purpose | Version Requirement |
+| -------------------- | ----------------- | ------- | ------------------- |
+| Frontend             |                   |         |                     |
+| UI Components        |                   |         |                     |
+| Styling              |                   |         |                     |
+| AI / Processing      |                   |         |                     |
+| Internationalization |                   |         |                     |
+| State & Storage      |                   |         |                     |
+| Utilities            |                   |         |                     |
+| Deployment           |                   |         |                     |
+
+---
+
+### Example
+
+| Layer                | Technology / Tool     | Purpose                        | Version Requirement |
+| -------------------- | --------------------- | ------------------------------ | ------------------- |
+| Frontend             | React                 | Main UI rendering engine       | 18+                 |
+| UI Components        | Custom shared library | Standardized visual elements   | -                   |
+| Styling              | CSS Modules           | Encapsulated component styling | -                   |
+| AI / Processing      | Python API Service    | Executes analysis jobs         | 3.10                |
+| Internationalization | JSON locale files     | Language switching             | -                   |
+| State & Storage      | Redis                 | Caching analysis states        | 6+                  |
+| Utilities            | Lodash                | Helper utilities               | -                   |
+| Deployment           | Docker + AWS ECS      | Automated scalable hosting     | -                   |
+
+---
+
+# 3. Functional Requirements
+
+Define what each feature must do, how it behaves, and what conditions influence its execution.
+
+### Template
+
+```
+Feature: [Feature Name]
+
+Trigger Conditions:
+- [...]
+
+Behavior:
+- [...]
+
+Input Requirements:
+- [...]
+
+Output Requirements:
+- [...]
+
+Error Handling:
+- [...]
+
+User Interaction:
+- [...]
+
+Dependencies:
+- [...]
+```
+
+---
+
+### Example
+
+```
+Feature: Automated Report Generation
+
+Trigger Conditions:
+- User uploads a supported dataset
+- User selects at least one analysis module
+
+Behavior:
+- Validate dataset format and structure
+- Process using selected analysis modules
+- Generate structured report assets
+
+Input Requirements:
+- Supported formats: CSV, JSON
+- Maximum file size: 50MB
+
+Output Requirements:
+- PDF report
+- Summary JSON file
+- Visual charts and metrics
+
+Error Handling:
+- Unsupported format → Display validation error
+- Processing timeout → Retry and notify user
+
+User Interaction:
+- Progress indicator during analysis
+- Ability to cancel processing
+
+Dependencies:
+- Cloud storage service
+- Background processing service
+```
+
+---
+
+# 4. Data Models
+
+Describe system entities using JSON with explicit `"type"` values, and comment each field for clarity.
+Avoid ambiguous types such as `"array"` or `"object"`.
+
+### Template
+
+*(JSON format + `"type"` + `// comments`)*
+
+```jsonc
+```
+
+---
+
+### Example — User Profile
+
+```jsonc
+{
+  "entity": "UserProfile", // Stores user profile data
+  "fields": {
+    "id": "string", // Unique user identifier
+    "email": "string", // Primary contact email
+    "language": "string", // User-selected display language
+    "theme": "string", // Light or dark theme selection
+    "notifications": {
+      "emailNotifications": "boolean", // Email alerts enabled
+      "pushNotifications": "boolean" // Push alerts enabled
+    }
+  }
+}
+```
+
+---
+
+# 5. System Architecture Diagram
+
+### Template
+
+Use the `graph TD` Mermaid syntax to describe system components and interactions.
+
+```mermaid
+```
+
+---
+
+### Example
+
+```mermaid
+graph TD
+  UI[Dashboard UI] --> Logic[Job Manager Service]
+  Logic --> State[Redis Cache]
+  Logic --> Processing[Analysis Engine]
+  Processing --> External[S3 Data Storage]
+```
+
+---
+
+# 6. API Flow Diagrams
+
+### Template
+
+Use Mermaid `sequenceDiagram` to illustrate lifecycle or API operations.
+
+```mermaid
+```
+
+---
+
+### Example
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant WebApp
+  participant LocalStore
+  participant AuthAPI
+
+  User->>WebApp: Open system
+  WebApp->>LocalStore: Check auth token
+  LocalStore-->>WebApp: Token found
+  WebApp->>AuthAPI: Validate token
+  AuthAPI-->>WebApp: Token valid
+  WebApp-->>User: Load dashboard
+```
+
+---
+
+# 7. Front-End Interface Design (Only if the system needs frontend)
+
+## 7.1 Layout Specification (Only if the system needs frontend)
+
+### Template and Example
+
+```
+Desktop:
+┌────────────────── Header ──────────────────┐
+│ Controls + Filters                         │
+├────────────────────────────────────────────┤
+│ ResultsPanel (grid or list)                │
+└───────────────────── Footer ───────────────┘
+
+Tablet:
+Two-column adaptive layout
+
+Mobile:
+Single-column scroll layout
+```
+
+---
+
+## 7.2 Color System (Only if the system needs frontend)
+
+### Template and Example
+
+```jsonc
+{
+  "COLOR_PRIMARY": "#0055ff", // Main accent color
+  "COLOR_SUCCESS": "#22bb33",
+  "COLOR_WARNING": "#ffaa00",
+  "COLOR_ERROR": "#dd3333",
+  "COLOR_BACKGROUND": "#ffffff"
+}
+```
+
+---
+
+# 8. Component Specifications
+
+Define UI, logic, or cross-layer components.
+
+### Template
+
+```
+Component: [Name]
+
+Props / Inputs:
+- [...]
+
+Outputs:
+- [...]
+
+UI Structure:
+- Header
+- Body
+- Footer
+- Optional sections
+
+Behavior:
+- [...]
+
+State:
+- [...]
+
+Error States:
+- [...]
+
+Dependencies:
+- [...]
+```
+
+---
+
+### Example
+
+```
+Component: UploadPanel
+
+Props / Inputs:
+- onUpload (callback)
+- acceptedFormats (array)
+
+Outputs:
+- File object
+
+UI Structure:
+- Header: Title bar
+- Body: File dropzone zone
+- Footer: Upload progress indicator
+
+Behavior:
+- Validates supported file types
+- Emits callback after successful upload
+
+State:
+- isUploading (boolean)
+- uploadProgress (number 0–100)
+
+Error States:
+- Invalid file format
+- Network error during upload
+
+Dependencies:
+- FileReader API
+```
+
+---
+
+# 9. Repository Layout
+
+### Template
+
+Split by logical concerns using conventional folder names
+
+```
+
+```
+
+---
+
+### Example
+
+```
+project-root/
+├── docs/
+│   └── SystemDesign.md
+├── public/
+│   └── icons/
+└── src/
+    ├── app/
+    ├── components/
+    │   └── UploadPanel/
+    ├── modules/
+    │   └── Analysis/
+    ├── constants/
+    ├── hooks/
+    ├── lib/
+    │   └── processing/
+    ├── storage/
+    ├── theme/
+    └── types/
+```
+
