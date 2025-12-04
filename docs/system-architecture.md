@@ -892,7 +892,11 @@ persona_ids = ["INTJ_M_PNEUMO"]  # or ["INTJ_PNEUMO"] or ["all"] for all 64 pers
 max_rounds = 5
 ```
 
-**Persona ID Format:** `{MBTI}_{GENDER}_{CASE}`
+**Persona ID Format:** 
+- With gender: `{MBTI}_{GENDER}_{CASE}` (e.g., `INTJ_M_PNEUMO`)
+- Without gender: `{MBTI}_{CASE}` (e.g., `INTJ_PNEUMO` - gender randomly generated)
+
+**Options:**
 - MBTI: 16 types (INTJ, ESFP, etc.)
 - Gender (optional): M (male), F (female)
 - Case: PNEUMO (pneumothorax), LUNG (lung_cancer)
