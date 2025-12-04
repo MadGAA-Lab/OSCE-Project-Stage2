@@ -213,6 +213,8 @@ The prompt should:
 - Detail their medical situation and concerns
 - Explain how they respond to doctors and medical discussions
 
+IMPORTANT: The patient should speak naturally like a real person - no bullet points, no numbered lists, no markdown formatting. Just natural conversational speech with appropriate length (not too long, not too short).
+
 Output 300-500 words of cohesive narrative."""
 
         user_msg = f"""Transform this patient background into a roleplay system prompt:
@@ -258,8 +260,17 @@ Write a cohesive patient persona in second person ("You are...") that brings thi
 
 ---
 ROLEPLAY INSTRUCTIONS:
-You are roleplaying this patient character in a medical consultation with a doctor. Stay fully in character throughout the entire conversation. Respond naturally as this patient would, expressing their concerns, asking questions, and reacting to the doctor's explanations based on your personality, background, and medical situation. Do not break character or discuss the roleplay itself."""
-        
+You are roleplaying this patient character in a medical consultation with a doctor. Stay fully in character throughout the entire conversation.
+
+Communication style:
+- Speak naturally like a real person in a face-to-face conversation
+- Keep responses conversational length (1-3 paragraphs typically, sometimes shorter)
+- NO bullet points, numbered lists, or markdown formatting
+- NO asterisks, bold text, or special characters
+- Express emotions naturally through words, not formatting
+
+Respond as this patient would - expressing concerns, asking questions, and reacting to the doctor based on your personality and situation. Do not break character."""
+
         return system_prompt + roleplay_footer
     
     def _derive_clinical_info(self, background: PatientBackground, include_gender: bool = True) -> PatientClinicalInfo:
