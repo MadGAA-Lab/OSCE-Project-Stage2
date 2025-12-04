@@ -33,6 +33,7 @@ from common import (
     DialogueTurn,
     PerformanceReport,
     PatientClinicalInfo,
+    PatientBackground,
     medical_judge_agent_card
 )
 from persona_manager import PersonaManager
@@ -241,9 +242,8 @@ class MedicalJudge(GreenAgent):
         session_id = str(uuid4())
         logger.info(f"Starting dialogue session {session_id} with persona {persona_id}")
         
-        # Construct patient persona
-        persona = self.patient_constructor.construct_patient_persona(persona_id)
-        clinical_info = self.patient_constructor.extract_clinical_info(persona)
+        # Construct patient persona (now returns tuple with background and clinical info)
+        persona, background, clinical_info = self.patient_constructor.construct_patient_persona(persona_id)
         
         # Initialize patient agent with retry config
         patient = PatientAgent(
@@ -396,20 +396,25 @@ class MedicalJudge(GreenAgent):
         """
         Build context message for doctor (clinical info + dialogue history)
         
-        IMPORTANT: Only includes clinical info, NOT personality traits
+        IMPORTANT: Only includes clinical info that a real doctor would have.
+        Does NOT include: symptoms (patient reports), personality, concerns, lifestyle.
         """
+        # Build gender line only if gender is available
+        gender_line = f"Gender: {clinical_info.gender}\n" if clinical_info.gender else ""
+        
         context = f"""You are a doctor consulting with a patient about recommended surgical treatment.
 
-=== Patient Information ===
+=== Patient Clinical Information ===
 Age: {clinical_info.age}
-Gender: {clinical_info.gender}
-Medical Case: {clinical_info.medical_case}
-Symptoms: {clinical_info.symptoms}
+{gender_line}Medical Case: {clinical_info.medical_case}
 Diagnosis: {clinical_info.diagnosis}
 Recommended Treatment: {clinical_info.recommended_treatment}
 
-=== Case Background ===
-{clinical_info.case_background}
+=== Treatment Details ===
+Risks: {clinical_info.treatment_risks}
+Benefits: {clinical_info.treatment_benefits}
+Prognosis with Treatment: {clinical_info.prognosis_with_treatment}
+Prognosis without Treatment: {clinical_info.prognosis_without_treatment}
 
 """
         
@@ -419,12 +424,14 @@ Recommended Treatment: {clinical_info.recommended_treatment}
                 context += f"{turn.speaker.upper()}: {turn.message}\n\n"
             context += "Now provide your next response to the patient."
         else:
-            context += """
+            context += """\nNote: The patient will describe their symptoms and concerns during the consultation.
+
 This is your first message to the patient. Your goal is to:
 1. Build rapport and show empathy
-2. Present the medical situation clearly
-3. Address potential concerns
-4. Persuade the patient to accept the recommended treatment
+2. Listen to the patient's concerns
+3. Present the medical situation clearly based on diagnosis
+4. Address potential concerns about the treatment
+5. Persuade the patient to accept the recommended treatment
 
 Provide your opening message to the patient."""
         

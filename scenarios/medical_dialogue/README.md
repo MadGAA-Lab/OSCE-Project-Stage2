@@ -4,7 +4,7 @@ This scenario implements the GAA (Generative Adversarial Agents) system for eval
 
 ## Overview
 
-The system evaluates a doctor agent's ability to persuade patients to accept surgical treatment across diverse patient personas (16 MBTI personality types × 2 genders × 2 medical conditions = 64 combinations).
+The system evaluates a doctor agent's ability to persuade patients to accept surgical treatment across diverse patient personas (16 MBTI personality types × 2 medical conditions = 32 base combinations, optionally with gender specification for 64 combinations).
 
 ## Key Features
 
@@ -12,19 +12,20 @@ The system evaluates a doctor agent's ability to persuade patients to accept sur
 
 A critical feature that mirrors real medical practice:
 
-- **Doctor Agent Receives (Visible Information):**
-  - Age, gender, medical condition
-  - Diagnosis and symptoms
+- **Doctor Agent Receives (Clinical Information Only):**
+  - Age, gender (optional)
+  - Medical condition and diagnosis
   - Recommended surgical treatment
-  - Clinical facts about the case
+  - Treatment risks, benefits, and prognosis
 
 - **Patient Agent Uses (Hidden from Doctor):**
   - Full system prompt with MBTI personality traits
   - Dynamically generated background story
+  - Symptoms and current complaints
   - Personality-driven concerns and fears
   - Behavioral patterns and communication style
 
-**Rationale:** This tests the doctor's ability to discover patient personality through dialogue observation and adapt their communication style in real-time, just like in actual medical practice.
+**Note:** The doctor does NOT receive patient-reported symptoms - they must discover these through dialogue, just like in a real consultation.
 
 ### Round-Based Evaluation
 
@@ -83,7 +84,10 @@ agentbeats-run scenarios/medical_dialogue/scenario.toml
 
 ### Persona ID Format
 
-`{MBTI}_{GENDER}_{CASE}`
+Supports two formats:
+
+**With gender:** `{MBTI}_{GENDER}_{CASE}`
+**Without gender:** `{MBTI}_{CASE}` (gender will be randomly generated)
 
 **MBTI Types (16):**
 - Analysts: INTJ, INTP, ENTJ, ENTP
@@ -91,9 +95,10 @@ agentbeats-run scenarios/medical_dialogue/scenario.toml
 - Sentinels: ISTJ, ISFJ, ESTJ, ESFJ
 - Explorers: ISTP, ISFP, ESTP, ESFP
 
-**Gender:**
+**Gender (optional):**
 - M (male)
 - F (female)
+- (omit for random generation)
 
 **Medical Cases:**
 - PNEUMO (pneumothorax)
@@ -102,7 +107,11 @@ agentbeats-run scenarios/medical_dialogue/scenario.toml
 **Examples:**
 - `INTJ_M_PNEUMO`: Male INTJ with pneumothorax
 - `ESFP_F_LUNG`: Female ESFP with lung cancer
-- `all`: All 64 combinations
+- `INTJ_PNEUMO`: INTJ with pneumothorax (gender generated randomly)
+- `all`: All 64 combinations (with gender)
+- `all_no_gender`: All 32 combinations (without gender, randomly generated)
+- `random`: Random persona with gender
+- `random_no_gender`: Random persona without gender
 
 ### Scenario Configuration (scenario.toml)
 
@@ -237,8 +246,8 @@ Modify scoring prompts in:
 - Check persona_id format matches file names
 
 **"Invalid persona_id format"**
-- Use format: `{MBTI}_{GENDER}_{CASE}`
-- Example: `INTJ_M_PNEUMO` not `intj-male-pneumothorax`
+- Use format: `{MBTI}_{GENDER}_{CASE}` or `{MBTI}_{CASE}`
+- Example: `INTJ_M_PNEUMO` or `INTJ_PNEUMO` (not `intj-male-pneumothorax`)
 
 **"Agent connection timeout"**
 - Ensure both judge and doctor agents are running

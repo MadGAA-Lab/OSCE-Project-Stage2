@@ -12,22 +12,53 @@ from pydantic import BaseModel
 
 class PatientPersona(BaseModel):
     """Minimal patient persona config - details generated dynamically"""
-    persona_id: str  # e.g., "INTJ_M_PNEUMO"
+    persona_id: str  # e.g., "INTJ_PNEUMO" or "INTJ_M_PNEUMO"
     mbti_type: str  # MBTI personality type (16 options: INTJ, ESFP, etc.)
-    gender: str  # "male" or "female"
+    gender: str | None = None  # "male" or "female" (optional - can be generated)
     medical_case: str  # "pneumothorax" or "lung_cancer"
     system_prompt: str  # Generated complete system prompt for patient agent
 
 
-class PatientClinicalInfo(BaseModel):
-    """Partial patient information provided to Doctor Agent (NO personality traits)"""
-    age: int  # Patient age
-    gender: str  # "male" or "female"
+class PatientBackground(BaseModel):
+    """Full patient background info generated for simulation (superset of clinical info)"""
+    # Basic demographics
+    age: int  # Patient age (35-65 range)
+    gender: str  # "male" or "female" (generated if not specified)
+    occupation: str  # Job/profession aligned with personality
+    
+    # Medical information
     medical_case: str  # "pneumothorax" or "lung_cancer"
-    symptoms: str  # Brief symptom description
+    symptoms: str  # Current symptoms the patient is experiencing
     diagnosis: str  # Medical diagnosis
     recommended_treatment: str  # Recommended surgical procedure
-    case_background: str  # Clinical facts about the case
+    treatment_risks: str  # Risks associated with the treatment
+    treatment_benefits: str  # Benefits of the treatment
+    prognosis_with_treatment: str  # Expected outcome with treatment
+    prognosis_without_treatment: str  # Expected outcome without treatment
+    
+    # Personal background (for patient simulation only)
+    family_situation: str  # Family context
+    lifestyle: str  # Lifestyle and habits
+    values: str  # Personal values
+    concerns_and_fears: str  # Personality-driven concerns about medical situation
+
+
+class PatientClinicalInfo(BaseModel):
+    """Partial patient information provided to Doctor Agent (NO personality traits)
+    
+    This is a subset of PatientBackground - only includes information that
+    a real doctor would have access to in a clinical setting.
+    Does NOT include: symptoms (patient reports these), personality, concerns, lifestyle.
+    """
+    age: int  # Patient age
+    gender: str | None = None  # "male" or "female" (optional for privacy)
+    medical_case: str  # "pneumothorax" or "lung_cancer"
+    diagnosis: str  # Medical diagnosis from tests/imaging
+    recommended_treatment: str  # Recommended surgical procedure
+    treatment_risks: str  # Known risks of the treatment
+    treatment_benefits: str  # Benefits of the treatment
+    prognosis_with_treatment: str  # Expected outcome with treatment
+    prognosis_without_treatment: str  # Expected outcome without treatment
 
 
 class RoundEvaluation(BaseModel):

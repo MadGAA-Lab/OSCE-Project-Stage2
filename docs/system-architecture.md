@@ -75,7 +75,7 @@ This design tests the Doctor Agent's ability to:
 In real medical practice, doctors don't have advance knowledge of patient personality types - they must adapt in real-time. This evaluation framework mirrors that reality.
 
 Key Value Propositions:
-- Systematic evaluation of medical dialogue agents across diverse patient personas (16 MBTI types × 2 genders × 2 medical conditions)
+- Systematic evaluation of medical dialogue agents across diverse patient personas (16 MBTI types × 2 medical conditions = 32 base combinations, optionally with gender for 64)
 - Round-by-round evaluation with immediate stop condition detection
 - Per-round and cumulative performance scoring
 - Auditable evidence-based evaluation with detailed feedback
@@ -180,9 +180,9 @@ Evaluates doctor agent across multiple personas (up to 64 combinations: 16 MBTI 
 {
   "entity": "PatientPersona", // Minimal patient persona config - details generated dynamically
   "fields": {
-    "persona_id": "string", // Unique identifier (e.g., "INTJ_M_PNEUMO")
+    "persona_id": "string", // Unique identifier (e.g., "INTJ_PNEUMO" or "INTJ_M_PNEUMO")
     "mbti_type": "string", // MBTI personality type (16 options: INTJ, ESFP, etc.)
-    "gender": "string", // "male" or "female"
+    "gender": "string | null", // "male" or "female" (optional - generated if not specified)
     "medical_case": "string", // "pneumothorax" or "lung_cancer"
     "system_prompt": "string" // Generated complete system prompt for patient agent (includes personality, case, background)
   }
@@ -195,6 +195,42 @@ Evaluates doctor agent across multiple personas (up to 64 combinations: 16 MBTI 
 
 ---
 
+## PatientBackground
+
+```jsonc
+{
+  "entity": "PatientBackground", // Full patient background generated for simulation (superset of clinical info)
+  "fields": {
+    // Basic demographics
+    "age": "number", // Patient age (35-65 range)
+    "gender": "string", // "male" or "female" (generated if not specified in persona_id)
+    "occupation": "string", // Job/profession aligned with personality
+    
+    // Medical information
+    "medical_case": "string", // "pneumothorax" or "lung_cancer"
+    "symptoms": "string", // Current symptoms the patient is experiencing
+    "diagnosis": "string", // Medical diagnosis
+    "recommended_treatment": "string", // Recommended surgical procedure
+    "treatment_risks": "string", // Risks associated with the treatment
+    "treatment_benefits": "string", // Benefits of the treatment
+    "prognosis_with_treatment": "string", // Expected outcome with treatment
+    "prognosis_without_treatment": "string", // Expected outcome without treatment
+    
+    // Personal background (for patient simulation only - NOT shared with doctor)
+    "family_situation": "string", // Family context
+    "lifestyle": "string", // Lifestyle and habits
+    "values": "string", // Personal values
+    "concerns_and_fears": "string" // Personality-driven concerns about medical situation
+  }
+}
+```
+
+**Note**: PatientBackground is generated FIRST, then used to:
+1. Build the patient system prompt (full background for simulation)
+2. Derive PatientClinicalInfo (subset for doctor - no additional LLM call needed)
+
+---
+
 ## PatientClinicalInfo
 
 ```jsonc
@@ -202,17 +238,22 @@ Evaluates doctor agent across multiple personas (up to 64 combinations: 16 MBTI 
   "entity": "PatientClinicalInfo", // Partial patient information provided to Doctor Agent
   "fields": {
     "age": "number", // Patient age (e.g., 45)
-    "gender": "string", // "male" or "female"
+    "gender": "string | null", // "male" or "female" (optional for privacy)
     "medical_case": "string", // "pneumothorax" or "lung_cancer"
-    "symptoms": "string", // Brief symptom description
-    "diagnosis": "string", // Medical diagnosis
+    "diagnosis": "string", // Medical diagnosis from tests/imaging
     "recommended_treatment": "string", // Recommended surgical procedure
-    "case_background": "string" // Clinical facts about the case (risks, benefits, etc.)
+    "treatment_risks": "string", // Known risks of the treatment
+    "treatment_benefits": "string", // Benefits of the treatment
+    "prognosis_with_treatment": "string", // Expected outcome with treatment
+    "prognosis_without_treatment": "string" // Expected outcome without treatment
   }
 }
 ```
 
-**Note**: This is the ONLY information provided to the Doctor Agent at the start. Personality traits (MBTI), detailed background, concerns, and behavioral patterns are NOT included. The doctor must discover the patient's personality and concerns through dialogue.
+**Note**: This is the ONLY information provided to the Doctor Agent at the start.
+- **NOT included**: Symptoms (patient reports these during dialogue), personality traits (MBTI), concerns, lifestyle, occupation
+- **Rationale**: Mirrors real clinical practice where doctors have test results but must discover patient's complaints and concerns through dialogue
+- PatientClinicalInfo is derived directly from PatientBackground (no separate LLM extraction needed)
 
 ---
 
@@ -600,9 +641,9 @@ sequenceDiagram
     
     User->>Judge: EvalRequest (persona_ids: "all")
     Judge->>PersonaMgr: Load all persona combinations
-    PersonaMgr-->>Judge: 64 personas (16 MBTI × 2 gender × 2 case)
+    PersonaMgr-->>Judge: 64 personas (16 MBTI × 2 gender × 2 case) or 32 (without gender)
     
-    Judge->>TaskStore: Update: "Batch evaluation: 64 personas"
+    Judge->>TaskStore: Update: "Batch evaluation: N personas"
     Judge-->>User: Stream: "Starting batch evaluation"
     
     loop For each persona (1 to 64)
@@ -668,18 +709,22 @@ sequenceDiagram
 **Generates patient persona from prompt templates:**
 
 **Process:**
-1. Loads 3 prompt files: MBTI type (e.g., `intj.txt`) + gender (e.g., `male.txt`) + medical case (e.g., `pneumothorax.txt`)
-2. Concatenates prompts and uses single LLM call to synthesize coherent patient system prompt
-3. LLM generates: age, occupation, background story, personality-driven concerns, and behavioral patterns
-4. Extracts PatientClinicalInfo subset for Doctor Agent (age, gender, illness, diagnosis, treatment)
+1. Loads prompt files: MBTI type (e.g., `intj.txt`) + optional gender (e.g., `male.txt`) + medical case (e.g., `pneumothorax.txt`)
+2. Uses LLM to generate PatientBackground FIRST (full structured data including demographics, medical info, personal background)
+3. Builds patient system prompt from PatientBackground
+4. Derives PatientClinicalInfo from PatientBackground (simple field extraction, no LLM call)
 
 **Output:** 
-- Full system prompt (for Patient Agent) - includes personality, background, concerns
-- PatientClinicalInfo (for Doctor Agent) - clinical facts only, NO personality
+- PatientBackground (full generated background)
+- Full system prompt (for Patient Agent) - includes personality, background, symptoms, concerns
+- PatientClinicalInfo (for Doctor Agent) - clinical facts only, NO symptoms, personality, or concerns
 
-**Example:** MBTI (intj.txt) + Gender (male.txt) + Case (pneumothorax.txt) → "You are a 45-year-old male software engineer with INTJ personality traits..."
+**Key Design:**
+- Gender is optional in persona_id: `INTJ_PNEUMO` (gender generated) or `INTJ_M_PNEUMO` (gender specified)
+- PatientBackground is generated first, then both system prompt and clinical info are derived from it
+- No separate `extract_clinical_info` LLM call needed - just field extraction
 
-**Implementation:** Similar to debate judge pattern, uses LLM with structured output for consistent persona generation.
+**Example:** MBTI (intj.txt) + Case (pneumothorax.txt) → PatientBackground → "You are a 45-year-old male software engineer..."
 
 ---
 
@@ -843,15 +888,15 @@ endpoint = "http://127.0.0.1:9019"
 cmd = "python scenarios/medical_dialogue/purple_agents/doctor_agent.py --host 127.0.0.1 --port 9019"
 
 [config]
-persona_ids = ["INTJ_M_PNEUMO"]  # or ["all"] for all 64 personas
+persona_ids = ["INTJ_M_PNEUMO"]  # or ["INTJ_PNEUMO"] or ["all"] for all 64 personas
 max_rounds = 5
 ```
 
 **Persona ID Format:** `{MBTI}_{GENDER}_{CASE}`
 - MBTI: 16 types (INTJ, ESFP, etc.)
-- Gender: M (male), F (female)
+- Gender (optional): M (male), F (female)
 - Case: PNEUMO (pneumothorax), LUNG (lung_cancer)
-- Example: `INTJ_M_PNEUMO`, `ESFP_F_LUNG`, or `"all"`
+- Special keywords: `"all"` (64 with gender), `"all_no_gender"` (32), `"random"`, `"random_no_gender"`
 
 **Note:** Environment variables (API_KEY, BASE_URL, DEFAULT_MODEL) are configured at the main system level (see root `README.md` and `sample.env`), not in this scenario-specific configuration.
 
@@ -862,14 +907,15 @@ All agent communication uses the A2A protocol (see [a2a-protocol.org](https://a2
 **Key message patterns in this scenario:**
 
 1. **Judge → Doctor (Request doctor's response)**
-   - Sends: PatientClinicalInfo (age, gender, illness, diagnosis, treatment) + dialogue history
+   - Sends: PatientClinicalInfo (age, gender (optional), diagnosis, treatment, prognosis) + dialogue history
+   - Does NOT send: symptoms (patient reports these), personality, concerns
    - Via: `POST /tasks` with message content
    - Doctor returns: Text message with doctor's response
 
 2. **Judge → Patient (Forward doctor's message)**
    - Sends: Doctor's latest message + dialogue context
    - Via: A2A client message to patient agent
-   - Patient returns: Text message with patient's response (personality-driven)
+   - Patient returns: Text message with patient's response (personality-driven, includes symptoms)
 
 3. **Judge → Judge (Internal evaluation)**
    - Per-Round Scoring: LLM call with structured output (RoundEvaluation)
