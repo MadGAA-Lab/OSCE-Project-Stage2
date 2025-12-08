@@ -979,30 +979,32 @@ OSEC-Project/
 │   └── medical_dialogue/            # GAA medical dialogue scenario
 │       ├── green_agents/            # Evaluator agents
 │       │   ├── __init__.py
+│       │   ├── common.py            # Shared Pydantic models (RoundEvaluation, PerformanceReport, etc.)
 │       │   ├── judge.py             # Judge agent - round orchestrator + stop condition + report generation
 │       │   ├── patient_agent.py     # Patient simulator agent
 │       │   ├── patient_constructor.py # Constructs patient system prompts from templates
 │       │   ├── per_round_scoring.py # Per-round evaluation scoring engine
-│       │   ├── stop_detector.py     # Stop condition detection logic
-│       │   ├── report_generator.py  # Final comprehensive report generation
 │       │   ├── persona_manager.py   # Loads prompt files for personas
-│       │   └── common.py            # Shared Pydantic models (RoundEvaluation, PerformanceReport, etc.)
+│       │   ├── report_generator.py  # Final comprehensive report generation
+│       │   └── stop_detector.py     # Stop condition detection logic
 │       ├── purple_agents/           # Doctor agents (examples and templates)
 │       │   ├── __init__.py
 │       │   └── doctor_agent.py      # Example doctor agent implementation
 │       ├── prompts/                 # Text prompt templates (SIMPLE .txt files)
-│       │   ├── mbti/                # 16 MBTI personality prompt files
-│       │   │   ├── intj.txt
-│       │   │   ├── esfp.txt
-│       │   │   └── ... (14 more)
+│       │   ├── cases/               # 2 medical case prompt files
+│       │   │   ├── lung_cancer.txt
+│       │   │   └── pneumothorax.txt
 │       │   ├── gender/              # 2 gender context prompt files
-│       │   │   ├── male.txt
-│       │   │   └── female.txt
-│       │   └── cases/               # 2 medical case prompt files
-│       │       ├── pneumothorax.txt
-│       │       └── lung_cancer.txt
-│       ├── scenario.toml            # Main scenario configuration
-│       └── README.md                # Scenario-specific documentation
+│       │   │   ├── female.txt
+│       │   │   └── male.txt
+│       │   └── mbti/                # 16 MBTI personality prompt files
+│       │       ├── enfj.txt
+│       │       ├── enfp.txt
+│       │       └── ... (14 more)
+│       ├── Dockerfile.doctor-agent  # Docker image for doctor agent
+│       ├── Dockerfile.medical-judge # Docker image for judge agent
+│       ├── README.md                # Scenario-specific documentation
+│       └── scenario.toml            # Main scenario configuration
 ├── pyproject.toml                   # Python project configuration
 ├── sample.env                       # Environment variable template
 ├── README.md                        # Main project README
