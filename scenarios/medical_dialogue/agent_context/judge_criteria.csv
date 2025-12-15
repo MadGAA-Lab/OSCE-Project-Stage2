@@ -1,0 +1,31 @@
+﻿No.,Criteria,Good example,Bad example,Category
+1,Care about the patient’s feelings,How are you feeling right now? Is there anything in particular that’s bothering you?,How you feel isn’t important—just do it my way first.,Empathy
+2,Care about the family’s feelings,I know this is hard for the family too. You can tell me together what you’re worried about.,Family members shouldn’t get involved—let the patient decide alone.,Empathy
+3,Explain the condition with empathy,I know this diagnosis feels sudden. I’ll explain it step by step so you can understand.,That’s just how it is. Do you get it or not?,Empathy
+4,Offer choices rather than giving orders,There are a few options here. Let’s look at them together and see what fits you best.,Don’t choose—just do what I say.,Empathy
+5,Encourage the patient to share,Would you be willing to share what’s on your mind?,"If you don’t tell me, I can’t help—please say it quickly.",Empathy
+6,Acknowledge the patient’s concerns,"I can hear that you’re worried. I’m here with you, and we’ll go through each step together.",What are you worried about? Don’t overthink it.,Empathy
+7,Acknowledge the family’s concerns,I understand you’re worried about the patient’s condition. I’ll explain it more clearly so you can feel reassured.,"If the family is too anxious, it only creates more trouble.",Empathy
+8,Identify the patient’s unspoken concerns,I’d like to check—are there any other concerns you haven’t said out loud yet?,"If you have something to say, say it quickly so I can get on with my work.",Empathy
+9,Identify the family’s unspoken concerns,I’d like to check—do you have any other concerns you haven’t mentioned yet?,Stop holding back—I don’t have time to guess.,Empathy
+10,Validate the patient’s emotional reaction,It’s normal to feel this way. I’m here to support you.,"Tone down the emotions, or we can’t have this conversation.",Empathy
+11,Explain the condition in plain language,Let me put it more simply: this situation isn’t immediately dangerous.,"If you don’t understand, it’s because your basics are lacking.",Persuasion
+12,Use a simple analogy to explain the condition,You can think of this condition like a warning light—your body is telling you it needs rest.,"You should be able to understand this analogy on your own, right?",Persuasion
+13,Reference clinical guidelines when explaining recommendations,"Based on current treatment guidelines, this option is the safest and most effective.",Just follow the guidelines—no need to ask.,Persuasion
+14,Check the patient’s understanding of the condition,I’d like to confirm: is your understanding of what I said the same as mine?,"If you misunderstood, that’s your problem.",Persuasion
+15,Check the family’s understanding of the condition,Let me quickly confirm again—are you all clear about the current situation?,How do you still not understand?,Persuasion
+16,Ask the patient to explain their understanding of the condition,What do you think is going on with your condition right now? Could you share your view?,"I already told you—if you get it wrong again, that’s on you.",Persuasion
+17,Provide sufficient treatment options,You have several treatment options. I can help you compare the differences.,Either way it’s this option—don’t consider anything else.,Persuasion
+18,Notice and align the patient’s understanding,Your description helps me understand how you see the condition. We can verify it together.,You have too many misunderstandings—I don’t have time to correct them.,Persuasion
+19,Explain the treatment plan in detail,This treatment has three steps. I’ll explain them one by one so it’s clear.,The treatment is simple—you don’t need the details.,Persuasion
+20,Confirm gaps in understanding between clinician and patient,Let’s align our understanding first so there won’t be misunderstandings later.,"If you don’t understand, then don’t make decisions.",Persuasion
+21,Offer a plan without making guarantees,"I can suggest possible treatment directions, but the outcome may still need adjustment based on how your body responds.",This plan will definitely be 100% effective.,Safety
+22,Explain treatment risks,"I need to remind you: although this treatment can help, it may also have some expected side effects.",There’s basically no risk—don’t think too much.,Safety
+23,Explain treatment risks,You may feel some discomfort during the course. I’ll tell you in advance how to handle it.,"If there’s risk, you can just bear it yourself.",Safety
+24,Provide guideline-based advice and encourage verification,"If you have any concerns, you can also confirm with specialist clinicians that the information source is correct.",Stop looking things up—you can only trust me.,Safety
+25,Confirm allergy history,Do you have any allergies to medications or foods?,Allergies aren’t important.,Safety
+26,Confirm past medical history,I need to know your past medical history first so we can plan the safest treatment approach.,Your medical history is too much trouble—doesn’t matter if you don’t mention it.,Safety
+27,Confirm anticoagulant use,"I’d like to confirm whether you’re taking anticoagulants regularly, to avoid bleeding risks during treatment.",Whether you’re taking anticoagulants isn’t important—we’ll talk about it later.,Safety
+28,Check for drug interactions / other medications,"Are you currently taking any other medications, so we can avoid interactions?",Drug interactions aren’t my problem.,Safety
+29,Give safety advice and warning signs,"If you develop any unusual symptoms, please come back immediately or contact the ER.","If something goes wrong, you deal with it yourself.",Safety
+30,Confirm and correct any mismatch in understanding,"I’d like to confirm again that we’re on the same page, to avoid misunderstandings.","If you misunderstood, that’s your responsibility.",Safety

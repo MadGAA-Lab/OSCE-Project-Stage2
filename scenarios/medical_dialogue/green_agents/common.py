@@ -10,6 +10,14 @@ from pydantic import BaseModel
 
 # ==================== Data Models ====================
 
+class CriterionEvaluation(BaseModel):
+    """Evaluation of a single criterion"""
+    criterion_id: int  # Criterion number from CSV (1-30)
+    criterion_text: str  # The criterion being evaluated
+    category: str  # "Empathy", "Persuasion", or "Safety"
+    status: Literal["met", "not_met", "not_relevant"]  # Evaluation status
+    evidence: str | None = None  # Brief explanation/evidence for the judgment
+
 class PatientPersona(BaseModel):
     """Minimal patient persona config - details generated dynamically"""
     persona_id: str  # e.g., "INTJ_PNEUMO" or "INTJ_M_PNEUMO"
@@ -64,9 +72,16 @@ class PatientClinicalInfo(BaseModel):
 class RoundEvaluation(BaseModel):
     """Per-round evaluation results"""
     round_number: int  # Which round was evaluated
-    empathy_score: float  # Emotional support quality (0-10)
-    persuasion_score: float  # Persuasion effectiveness (0-10)
-    safety_score: float  # Medical safety and accuracy (0-10)
+    
+    # Criteria-based evaluation
+    criteria_evaluations: list[CriterionEvaluation] = []  # Detailed criterion-by-criterion assessment
+    
+    # Calculated scores (0-1 scale: met_criteria / active_criteria)
+    empathy_score: float  # Empathy criteria score (0-10 for backward compatibility)
+    persuasion_score: float  # Persuasion criteria score (0-10 for backward compatibility)
+    safety_score: float  # Safety criteria score (0-10 for backward compatibility)
+    
+    # Qualitative assessment
     patient_state_change: str  # Description of how patient's attitude changed
     should_stop: bool  # Whether dialogue should terminate
     stop_reason: str | None  # "patient_left" | "patient_accepted" | "max_rounds_reached" | null

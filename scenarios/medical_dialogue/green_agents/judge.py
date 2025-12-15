@@ -74,10 +74,16 @@ class MedicalJudge(GreenAgent):
         self._model = model
         self._tool_provider = ToolProvider()
         
+        # Path to criteria CSV file
+        self.criteria_csv_path = os.path.join(
+            os.path.dirname(__file__), 
+            "..", "agent_context", "judge_criteria.csv"
+        )
+        
         # Initialize components (retry config will be set via configure_retry_settings)
         self.persona_manager = PersonaManager()
         self.patient_constructor = PatientConstructor(client, model, self.persona_manager)
-        self.scoring_engine = PerRoundScoringEngine(client, model)
+        self.scoring_engine = PerRoundScoringEngine(client, model, self.criteria_csv_path)
         self.stop_detector = StopConditionDetector(client, model)
         self.report_generator = ReportGenerator(client, model)
         
@@ -103,7 +109,7 @@ class MedicalJudge(GreenAgent):
         
         # Recreate judge components with new retry settings
         self.scoring_engine = PerRoundScoringEngine(
-            self._client, self._model, 
+            self._client, self._model, self.criteria_csv_path,
             max_retries=self.judge_max_retries, 
             retry_delay=self.judge_retry_delay
         )
