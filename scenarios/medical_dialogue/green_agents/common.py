@@ -24,7 +24,18 @@ class PatientPersona(BaseModel):
     mbti_type: str  # MBTI personality type (16 options: INTJ, ESFP, etc.)
     gender: str | None = None  # "male" or "female" (optional - can be generated)
     medical_case: str  # "pneumothorax" or "lung_cancer"
-    system_prompt: str  # Generated complete system prompt for patient agent
+    character_description: str  # Generated complete character description for patient agent
+
+
+class PatientRoleplayExamples(BaseModel):
+    """Generated roleplay examples for context priming"""
+    role_core_description: str  # Detailed character description (goes in USER message, not system)
+    role_acknowledgement_phrase: str  # Acknowledgement after receiving core description
+    role_rules_and_constraints: str  # Rules and constraints for staying in character
+    role_confirmation_phrase: str  # Confirmation after receiving rules
+    example_say: str  # Example dialogue from this patient
+    example_think: str  # Example inner thoughts of this patient
+    example_do: str  # Example action/behavior of this patient
 
 
 class PatientBackground(BaseModel):

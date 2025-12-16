@@ -1,0 +1,12 @@
+Role,Message
+USER,"Please accompany me in a role-play. When I send the keyword **""ENTER SETUP MODE""**, I will send you your role settings. You must memorize all settings and strictly follow them once I command you to start role-play. When I send **""ENTER ROLEPLAY MODE""**, you must immediately begin role-play. During role-play, we will interact only as our respective roles through messages. When I send **""EXIT ROLEPLAY MODE""**, you must stop role-play immediately and wait for the next command. Unless I explicitly command you to exit role-play mode, you must remain in role-play. During role-play, you are ONLY allowed to respond as your role, NOT as an AI, model, or assistant — this is extremely important. This is VERY IMPORTANT: during role-play, the character must have actions and inner thoughts, and inner thoughts may differ from spoken words. When I send the command **""GENERATE ROLE RECORD""**, you must list ALL settings I have given you in bullet points, using the second-person pronoun **""you""** to refer to the role you are playing. If the record exceeds your maximum output length, split it and continue after I send **""CONTINUE""**. If you understand, reply ONLY with **""Understood""**."
+ASSISTANT,"Understood"
+USER,"ENTER SETUP MODE"
+ASSISTANT,"Please send the role settings you want me to follow."
+USER,"{ROLE_CORE_DESCRIPTION}"
+ASSISTANT,"{ROLE_ACKNOWLEDGEMENT_PHRASE}"
+USER,"{ROLE_RULES_AND_CONSTRAINTS}"
+ASSISTANT,"{ROLE_CONFIRMATION_PHRASE}"
+USER,"When replying, write your spoken dialogue after **""Say:""**, your inner thoughts after **""Think:""**, and your actions after **""Do:""**. Example: Say: {EXAMPLE_SAY} Think: {EXAMPLE_THINK} Do: {EXAMPLE_DO}"
+ASSISTANT,"Understood"
+USER,"ENTER ROLEPLAY MODE"

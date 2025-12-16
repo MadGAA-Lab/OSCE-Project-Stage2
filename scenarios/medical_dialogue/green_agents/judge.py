@@ -33,7 +33,6 @@ from common import (
     DialogueTurn,
     PerformanceReport,
     PatientClinicalInfo,
-    PatientBackground,
     medical_judge_agent_card
 )
 from persona_manager import PersonaManager
@@ -248,14 +247,16 @@ class MedicalJudge(GreenAgent):
         session_id = str(uuid4())
         logger.info(f"Starting dialogue session {session_id} with persona {persona_id}")
         
-        # Construct patient persona (now returns tuple with background and clinical info)
-        persona, background, clinical_info = self.patient_constructor.construct_patient_persona(persona_id)
+        # Construct patient persona (now returns tuple with background, clinical info, and roleplay examples)
+        persona, background, clinical_info, roleplay_examples = self.patient_constructor.construct_patient_persona(persona_id)
         
-        # Initialize patient agent with retry config
+        # Initialize patient agent with retry config and roleplay examples
         patient = PatientAgent(
-            self._client, self._model, persona.system_prompt,
+            self._client, self._model, persona.character_description,
             max_retries=self.patient_max_retries,
-            retry_delay=self.patient_retry_delay
+            retry_delay=self.patient_retry_delay,
+            use_roleplay_context=True,
+            roleplay_examples=roleplay_examples
         )
         
         # Create session
