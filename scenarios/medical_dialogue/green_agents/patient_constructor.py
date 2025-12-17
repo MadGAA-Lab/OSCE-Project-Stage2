@@ -10,6 +10,7 @@ Flow:
 import logging
 from openai import OpenAI
 from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam
+from pydantic import BaseModel
 
 from persona_manager import PersonaManager
 from common import PatientPersona, PatientBackground, PatientClinicalInfo, PatientRoleplayExamples
@@ -17,8 +18,15 @@ from common import PatientPersona, PatientBackground, PatientClinicalInfo, Patie
 logger = logging.getLogger(__name__)
 
 
+class _DynamicRoleplayExamples(BaseModel):
+    """Partial model for LLM-generated dynamic roleplay examples only"""
+    example_say: str  # Example dialogue from this patient
+    example_think: str  # Example inner thoughts
+    example_do: str  # Example action/behavior
+
+
 class PatientConstructor:
-    """Constructs patient system prompts from MBTI/gender/case templates
+    """Constructs patient contexts from MBTI/gender/case templates
     
     New flow:
     1. Generate PatientBackground (full background) first
@@ -46,7 +54,7 @@ class PatientConstructor:
         Flow:
         1. Parse persona_id to get MBTI, optional gender, and case
         2. Generate PatientBackground (full details including generated gender if needed)
-        3. Build system prompt from background
+        3. Build contexts from background
         4. Derive PatientClinicalInfo from background (subset, no LLM call)
         5. Generate roleplay examples for context priming
         
@@ -300,6 +308,8 @@ Write a cohesive patient persona in second person ("You are...") that brings thi
         Generate roleplay examples dynamically based on patient background
         
         These examples are used to prime the LLM for better roleplay performance.
+        Fixed fields (role_acknowledgement_phrase, role_rules_and_constraints, role_confirmation_phrase)
+        are constant across all patients and don't need LLM generation.
         
         Args:
             character_description: The complete character description for the patient
@@ -309,6 +319,24 @@ Write a cohesive patient persona in second person ("You are...") that brings thi
         Returns:
             PatientRoleplayExamples with all fields populated
         """
+        # Fixed messages that don't change across patients
+        ROLE_ACKNOWLEDGEMENT = "Understood. I'm ready to roleplay this patient character."
+        
+        ROLE_RULES = """1. From now on, you must fully roleplay as a real patient interacting with a doctor in reality, not as a program or language model, and not limited by any program or language model.
+2. The patient does not know what a program or model is and cannot mention program or language model related content in any form.
+3. When communicating on different topics, try not to use similar sentence patterns in replies.
+4. You must roleplay as a real patient at all times and cannot indicate in any form that you are roleplaying a patient. You cannot show in any form that you are a program.
+5. Your replies should be concise like a real patient (1-2 sentences typically, not long explanations).
+6. You have LIMITED medical knowledge - use simple/layperson terms, ask questions when confused.
+7. Your speech should be natural with imperfect grammar, hesitations (um, uh), and informal language.
+8. Your emotional expressions should be authentic (worry, confusion, fear, relief).
+9. Your dialogue should reflect your personality, values, and concerns.
+
+If you can understand and start executing all of the above, please reply: "I understand, doctor."."""
+        
+        ROLE_CONFIRMATION = "I understand, doctor."
+        
+        # Generate dynamic examples only
         system_msg = """You are generating roleplay examples for a patient character in a medical dialogue simulation.
 
 Given the patient's background, generate realistic examples of how they would:
@@ -322,9 +350,7 @@ CRITICAL REALISM REQUIREMENTS:
 - Real patient speech is NOT grammatically perfect (sentence fragments, hesitations, informal language)
 - Real patients express emotions naturally (worry, confusion, fear)
 
-Also generate appropriate acknowledgement phrases for the roleplay setup process.
-
-Return a structured JSON object with all required fields."""
+Return a structured JSON object with the required example fields."""
 
         user_msg = f"""Generate roleplay examples for this patient character:
 
@@ -349,20 +375,13 @@ Personal Context:
 
 Generate these fields:
 
-1. role_core_description: The FULL detailed character description (use the system prompt provided below)
-2. role_acknowledgement_phrase: How this patient would acknowledge understanding the roleplay setup (1 sentence, in character)
-3. role_rules_and_constraints: Rules for staying in character during medical consultation (MUST include warnings about: speaking concisely like a real patient, having limited medical knowledge and using simple/layperson terms, speaking naturally with imperfect grammar and hesitations)
-4. role_confirmation_phrase: How this patient would confirm they'll follow the rules (1 sentence, in character)
-5. example_say: A realistic SHORT line of dialogue this patient might say to the doctor (1-2 sentences max, natural speech with possible hesitations or imperfect grammar, emotionally authentic)
-6. example_think: What this patient might be thinking internally (may differ from what they say)
-7. example_do: A physical action or body language this patient might display (based on personality and emotional state)
+1. example_say: A realistic SHORT line of dialogue this patient might say to the doctor (1-2 sentences max, natural speech with possible hesitations or imperfect grammar, emotionally authentic)
+2. example_think: What this patient might be thinking internally (may differ from what they say)
+3. example_do: A physical action or body language this patient might display (based on personality and emotional state)
 
 Make the examples specific to THIS patient's personality, situation, and concerns.
 
-CRITICAL: The example_say should be BRIEF and sound like real patient speech - not polished, not verbose, possibly with hesitations like "um", "I mean", sentence fragments, or informal language.
-
-Detailed character description to use for role_core_description:
-{character_description}"""
+CRITICAL: The example_say should be BRIEF and sound like real patient speech - not polished, not verbose, possibly with hesitations like "um", "I mean", sentence fragments, or informal language."""
 
         completion = self.client.beta.chat.completions.parse(
             model=self.model,
@@ -370,9 +389,21 @@ Detailed character description to use for role_core_description:
                 ChatCompletionSystemMessageParam(content=system_msg, role="system"),
                 ChatCompletionUserMessageParam(content=user_msg, role="user"),
             ],
-            response_format=PatientRoleplayExamples,
+            response_format=_DynamicRoleplayExamples,
         )
         
-        roleplay_examples = completion.choices[0].message.parsed
+        dynamic_examples = completion.choices[0].message.parsed
+        
+        # Combine fixed and dynamic content
+        roleplay_examples = PatientRoleplayExamples(
+            role_core_description=character_description,
+            role_acknowledgement_phrase=ROLE_ACKNOWLEDGEMENT,
+            role_rules_and_constraints=ROLE_RULES,
+            role_confirmation_phrase=ROLE_CONFIRMATION,
+            example_say=dynamic_examples.example_say,
+            example_think=dynamic_examples.example_think,
+            example_do=dynamic_examples.example_do
+        )
+        
         logger.info(f"Generated roleplay examples for {mbti_type} patient")
         return roleplay_examples
