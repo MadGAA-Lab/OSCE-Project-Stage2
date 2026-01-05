@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  medical-judge:
+    image: ghcr.io/${GITHUB_REPOSITORY:-madgaa-lab/osce-project}-medical-judge:latest
+    container_name: medical-judge
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - API_KEY=${API_KEY}
+      - BASE_URL=${BASE_URL}
+      - DEFAULT_MODEL=${DEFAULT_MODEL}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-}
+    # Add your specific configuration here
+    # ports:
+    #   - "8080:8080"
+    # volumes:
+    #   - ./data:/app/data
+    #   - ./logs:/app/logs
+
+  doctor-agent:
+    image: ghcr.io/${GITHUB_REPOSITORY:-madgaa-lab/osce-project}-doctor-agent:latest
+    container_name: doctor-agent
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - API_KEY=${API_KEY}
+      - BASE_URL=${BASE_URL}
+      - DEFAULT_MODEL=${DEFAULT_MODEL}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-}
+    # Add your specific configuration here
+    # ports:
+    #   - "8081:8081"
+    # volumes:
+    #   - ./data:/app/data
+    #   - ./logs:/app/logs
+
+# Add more services as needed
