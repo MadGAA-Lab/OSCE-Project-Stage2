@@ -11,9 +11,8 @@ services:
       - BASE_URL=${BASE_URL}
       - DEFAULT_MODEL=${DEFAULT_MODEL}
       - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-}
-    # Add your specific configuration here
-    # ports:
-    #   - "8080:8080"
+    ports:
+      - "9009:9009"
     # volumes:
     #   - ./data:/app/data
     #   - ./logs:/app/logs
@@ -28,9 +27,8 @@ services:
       - BASE_URL=${BASE_URL}
       - DEFAULT_MODEL=${DEFAULT_MODEL}
       - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-}
-    # Add your specific configuration here
-    # ports:
-    #   - "8081:8081"
+    ports:
+      - "9019:9019"
     # volumes:
     #   - ./data:/app/data
     #   - ./logs:/app/logs
