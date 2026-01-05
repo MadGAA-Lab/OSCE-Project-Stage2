@@ -23,6 +23,16 @@ if [ -z "$API_KEY" ]; then
     exit 1
 fi
 
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo "ERROR: GITHUB_TOKEN environment variable is not set"
+    exit 1
+fi
+
+# Login to GitHub Container Registry
+echo ""
+echo "=== Logging in to GitHub Container Registry ==="
+echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR:-github-actions}" --password-stdin
+
 # Download docker-compose.yml from repository
 echo ""
 echo "=== Downloading docker-compose.yml ==="
