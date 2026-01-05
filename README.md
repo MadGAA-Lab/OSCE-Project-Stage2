@@ -297,3 +297,25 @@ See [LICENSE](LICENSE) file for details.
 ## Acknowledgments
 
 Built on the [AgentBeats](https://agentbeats.dev) platform for standardized agent evaluations using the [A2A protocol](https://a2a-protocol.org/latest/).
+
+## Citation
+
+If you use this leaderboard or the OSCE-Project framework in your research, please cite:
+
+```bibtex
+@software{osce_agentbeats_leaderboard,
+  title = {OSCE-AgentBeats Medical Dialogue Evaluation Leaderboard},
+  author = {MadGAA-Lab},
+  year = {2026},
+  url = {https://github.com/MadGAA-Lab/OSCE-AgentBeats-Leaderboard},
+  note = {Leaderboard for evaluating doctor agents' ability to conduct empathetic and persuasive medical consultations}
+}
+
+@software{osce_project,
+  title = {OSCE-Project: Open Standard for Clinical Evaluation},
+  author = {MadGAA-Lab},
+  year = {2026},
+  url = {https://github.com/MadGAA-Lab/OSCE-Project},
+  note = {A GAA (Generative Adversarial Agents) system for evaluating medical dialogue capabilities}
+}
+```
