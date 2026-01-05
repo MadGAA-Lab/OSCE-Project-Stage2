@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="OSCE-Project: An AI evaluation framework for assessing medical dialogue agents through realistic doctor-patient consultations using the GAA (Generative Adversarial Agents) system.">
+    <meta name="keywords" content="OSCE, medical AI, dialogue evaluation, LLM, healthcare, agent evaluation, MBTI">
+    <meta name="author" content="MadGAA-Lab">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="OSCE-Project: Medical Dialogue Agent Evaluation">
+    <meta property="og:description"
+        content="AI evaluation framework for medical dialogue agents using Generative Adversarial Agents">
+    <meta property="og:image" content="images/logo.jpg">
+    <meta property="og:type" content="website">
+
+    <title>OSCE-Project | Medical Dialogue Agent Evaluation</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="images/doctor-agent.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://github.com/MadGAA-Lab/" class="nav-logo">
+                <img src="images/logo.jpg" alt="MadGAA-Lab" class="nav-logo-img">
+                <span>MadGAA-Lab</span>
+            </a>
+            <div class="nav-links">
+                <a href="https://github.com/MadGAA-Lab/">Home</a>
+                <a href="https://github.com/MadGAA-Lab/" class="active">Research</a>
+                <a href="https://github.com/MadGAA-Lab/OSCE-Project" target="_blank" rel="noopener">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <article class="article">
+            <!-- Header -->
+            <header class="article-header">
+                <h1>OSCE-Project: Evaluating Medical Dialogue Agents with Generative Adversarial Agents</h1>
+
+                <!-- Paper link - uncomment when released
+                <div class="article-meta">
+                    <a href="https://github.com/MadGAA-Lab/OSCE-Project/raw/main/docs/paper.pdf" class="pdf-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        OSCE-Paper.pdf
+                    </a>
+                </div>
+                -->
+            </header>
+
+            <!-- Hero Image -->
+            <figure class="hero-figure">
+                <img src="images/method.png" alt="OSCE-Project Methodology" class="hero-image">
+            </figure>
+
+            <!-- Introduction -->
+            <section class="content-section">
+                <p class="lead">
+                    Evaluating AI doctors is hard—not because language models can't generate plausible medical dialogue,
+                    but because real clinical communication requires <em>empathy</em>, <em>persuasion</em>, and
+                    <em>safety</em>
+                    all at once. A good doctor must convince a skeptical patient to accept treatment while respecting
+                    their autonomy and ensuring informed consent. This is what <strong>OSCE-Project</strong> evaluates.
+                </p>
+
+                <p>
+                    The <strong>Objective Structured Clinical Examination (OSCE)</strong> has been the gold standard
+                    for evaluating medical students for decades. We've adapted this framework for AI agents, creating
+                    a system where doctor agents face simulated patients with diverse personalities and hidden concerns.
+                    Using <strong>Generative Adversarial Agents (GAA)</strong>, we pit doctor against patient in a
+                    challenging game of information asymmetry—just like real clinical practice.
+                </p>
+
+                <p>
+                    Most benchmarks for medical AI focus on factual accuracy: can the model diagnose correctly?
+                    But diagnosis is only half the battle. Our framework evaluates the full spectrum of clinical
+                    communication: building trust, addressing fears, explaining complex procedures, and ultimately
+                    guiding patients toward beneficial treatment decisions.
+                </p>
+            </section>
+
+            <!-- Key Numbers -->
+            <section class="stats-section">
+                <div class="stat-item">
+                    <span class="stat-number">64</span>
+                    <span class="stat-label">Patient Personas</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">16</span>
+                    <span class="stat-label">MBTI Types</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">30</span>
+                    <span class="stat-label">Evaluation Criteria</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Scoring Dimensions</span>
+                </div>
+            </section>
+
+            <!-- How It Works -->
+            <section class="content-section">
+                <h2 id="how-it-works">How does it work?</h2>
+
+                <p>
+                    The core insight behind OSCE-Project is <strong>information asymmetry</strong>: just like real
+                    doctors, our doctor agents receive only clinical information (diagnosis, recommended treatment,
+                    risks and benefits) but must discover patient concerns through conversation. The patient agent,
+                    powered by one of 16 MBTI personality types, has hidden fears, symptoms, and behavioral patterns
+                    that influence how they respond to the doctor's approach.
+                </p>
+
+                <div class="info-grid">
+                    <div class="info-card doctor">
+                        <div class="info-card-header">
+                            <img src="images/doctor-agent.png" alt="Doctor Agent" class="info-icon">
+                            <h3>Doctor Agent</h3>
+                        </div>
+                        <ul>
+                            <li>✓ Patient demographics</li>
+                            <li>✓ Medical diagnosis</li>
+                            <li>✓ Treatment details</li>
+                            <li>✗ Patient personality</li>
+                            <li>✗ Hidden concerns</li>
+                            <li>✗ Symptoms (must discover)</li>
+                        </ul>
+                    </div>
+                    <div class="info-card patient">
+                        <div class="info-card-header">
+                            <img src="images/osce-evaluator.png" alt="Patient Agent" class="info-icon">
+                            <h3>Patient Agent</h3>
+                        </div>
+                        <ul>
+                            <li>✓ Full personality (MBTI)</li>
+                            <li>✓ All symptoms</li>
+                            <li>✓ Hidden fears & concerns</li>
+                            <li>✓ Behavioral patterns</li>
+                            <li>✓ Treatment knowledge</li>
+                            <li>✓ Decision criteria</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p>
+                    Each dialogue round is evaluated by an LLM-as-judge using 30 criteria across three dimensions:
+                    <strong>Empathy</strong> (emotional understanding, active listening),
+                    <strong>Persuasion</strong> (addressing concerns, building trust), and
+                    <strong>Safety</strong> (informed consent, risk communication).
+                    The dialogue continues until the patient accepts treatment, refuses and leaves,
+                    or the maximum rounds are reached.
+                </p>
+            </section>
+
+            <!-- Patient Personas -->
+            <section class="content-section">
+                <h2 id="patient-personas">Patient Personas</h2>
+
+                <p>
+                    We generate 64 unique patient personas by combining:
+                </p>
+
+                <ul class="feature-list">
+                    <li><strong>16 MBTI Types</strong> — From analytical INTJs who demand data to empathetic ENFPs who
+                        need emotional support</li>
+                    <li><strong>2 Medical Conditions</strong> — Pneumothorax (urgent) and Lung Cancer (complex treatment
+                        decisions)</li>
+                    <li><strong>2 Genders</strong> — Different communication patterns and concerns</li>
+                </ul>
+
+                <p>
+                    Each persona generates personality-consistent responses: an ISTJ patient will want detailed
+                    statistics and structured explanations, while an ESFP might respond better to reassurance
+                    and personal stories. The doctor agent must adapt their communication style—without knowing
+                    the patient's personality type.
+                </p>
+            </section>
+
+            <!-- Sample Output -->
+            <section class="content-section">
+                <h2 id="results">Sample Evaluation</h2>
+
+                <figure class="content-figure">
+                    <img src="images/sample_output.png" alt="Sample evaluation output showing dialogue and scores">
+                    <figcaption>Real evaluation output showing round-by-round dialogue with empathy, persuasion, and
+                        safety scores.</figcaption>
+                </figure>
+            </section>
+
+            <!-- Architecture -->
+            <section class="content-section">
+                <h2 id="architecture">System Architecture</h2>
+
+                <p>
+                    OSCE-Project is built on the <a href="https://agentbeats.dev">AgentBeats</a> platform using
+                    the <a href="https://a2a-protocol.org">A2A protocol</a> for standardized agent evaluation.
+                    The system consists of:
+                </p>
+
+                <ul class="feature-list">
+                    <li><strong>Judge Agent</strong> — Central orchestrator managing the evaluation lifecycle</li>
+                    <li><strong>Persona Manager</strong> — Manages 64 patient personas with MBTI traits</li>
+                    <li><strong>Patient Constructor</strong> — Generates complete backgrounds from templates</li>
+                    <li><strong>Patient Agent</strong> — Simulates MBTI-driven personality-consistent behavior</li>
+                    <li><strong>Per-Round Scoring</strong> — LLM-as-judge evaluation using 30 criteria</li>
+                    <li><strong>Report Generator</strong> — Creates comprehensive performance analysis</li>
+                </ul>
+            </section>
+
+            <!-- Quick Start -->
+            <section class="content-section">
+                <h2 id="quickstart">Quick Start</h2>
+
+                <pre class="code-block"><code><span class="comment"># Clone and install</span>
+git clone https://github.com/MadGAA-Lab/OSCE-Project.git
+cd OSCE-Project
+uv sync
+
+<span class="comment"># Configure API keys</span>
+cp sample.env .env
+<span class="comment"># Add your OpenAI/Anthropic/Gemini credentials</span>
+
+<span class="comment"># Run evaluation</span>
+uv run agentbeats-run scenarios/medical_dialogue/scenario.toml</code></pre>
+            </section>
+
+            <!-- Citation -->
+            <section class="content-section citation-section">
+                <h2 id="citation">Citation</h2>
+
+                <p>If you use OSCE-Project in your research, please cite:</p>
+
+                <pre class="code-block bibtex"><code>@software{osce_project,
+  title = {OSCE-Project: Open Standard for Clinical Evaluation},
+  author = {MadGAA-Lab},
+  year = {2026},
+  url = {https://github.com/MadGAA-Lab/OSCE-Project},
+  note = {A GAA system for evaluating medical dialogue capabilities}
+}</code></pre>
+            </section>
+        </article>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p>© 2026 MadGAA-Lab · <a href="https://github.com/MadGAA-Lab/OSCE-Project">GitHub</a> · MIT License</p>
+        </div>
+    </footer>
+</body>
+
+</html>
