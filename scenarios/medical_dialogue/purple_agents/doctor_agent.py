@@ -32,11 +32,11 @@ def main():
     parser.add_argument("--model", type=str, help="Model to use for the agent")
     args = parser.parse_args()
     
-    # Get configuration from args or environment
-    api_key = args.api_key or os.getenv("API_KEY")
-    base_url = args.base_url or os.getenv("BASE_URL")
-    model = args.model or os.getenv("DEFAULT_MODEL", "gemini-2.0-flash")
-    azure_api_version = os.getenv("AZURE_OPENAI_API_VERSION")
+    # Get configuration from args or environment - check DOCTOR_* environment variables first, then fall back to defaults
+    api_key = args.api_key or os.getenv("DOCTOR_API_KEY") or os.getenv("API_KEY")
+    base_url = args.base_url or os.getenv("DOCTOR_BASE_URL") or os.getenv("BASE_URL")
+    model = args.model or os.getenv("DOCTOR_MODEL") or os.getenv("DEFAULT_MODEL", "gemini-2.0-flash")
+    azure_api_version = os.getenv("DOCTOR_AZURE_API_VERSION") or os.getenv("AZURE_OPENAI_API_VERSION")
     
     # Configure model based on provider
     if base_url:

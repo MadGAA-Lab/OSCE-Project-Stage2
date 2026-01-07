@@ -61,7 +61,7 @@ class MedicalJudge(GreenAgent):
     Uses base EvalRequest from agentbeats for compatibility
     """
     
-    def __init__(self, client: OpenAI, model: str):
+    def __init__(self, judge_client: OpenAI, judge_model: str, patient_client: OpenAI = None, patient_model: str = None):
         self.patient_max_retries = 3
         self.patient_retry_delay = 2
         self.judge_max_retries = 5
@@ -69,8 +69,10 @@ class MedicalJudge(GreenAgent):
         self.passing_score_threshold = 70
         self._required_roles = ["doctor"]
         self._required_config_keys = ["persona_ids", "max_rounds"]
-        self._client = client
-        self._model = model
+        self._judge_client = judge_client
+        self._patient_client = patient_client or judge_client
+        self._judge_model = judge_model
+        self._patient_model = patient_model or judge_model
         self._tool_provider = ToolProvider()
         
         # Path to criteria CSV file
@@ -81,10 +83,10 @@ class MedicalJudge(GreenAgent):
         
         # Initialize components (retry config will be set via configure_retry_settings)
         self.persona_manager = PersonaManager()
-        self.patient_constructor = PatientConstructor(client, model, self.persona_manager)
-        self.scoring_engine = PerRoundScoringEngine(client, model, self.criteria_csv_path)
-        self.stop_detector = StopConditionDetector(client, model)
-        self.report_generator = ReportGenerator(client, model)
+        self.patient_constructor = PatientConstructor(self._patient_client, self._patient_model, self.persona_manager)
+        self.scoring_engine = PerRoundScoringEngine(self._judge_client, self._judge_model, self.criteria_csv_path)
+        self.stop_detector = StopConditionDetector(self._judge_client, self._judge_model)
+        self.report_generator = ReportGenerator(self._judge_client, self._judge_model)
         
         logger.info("MedicalJudge initialized")
     
@@ -108,17 +110,17 @@ class MedicalJudge(GreenAgent):
         
         # Recreate judge components with new retry settings
         self.scoring_engine = PerRoundScoringEngine(
-            self._client, self._model, self.criteria_csv_path,
+            self._judge_client, self._judge_model, self.criteria_csv_path,
             max_retries=self.judge_max_retries, 
             retry_delay=self.judge_retry_delay
         )
         self.stop_detector = StopConditionDetector(
-            self._client, self._model,
+            self._judge_client, self._judge_model,
             max_retries=self.judge_max_retries,
             retry_delay=self.judge_retry_delay
         )
         self.report_generator = ReportGenerator(
-            self._client, self._model,
+            self._judge_client, self._judge_model,
             max_retries=self.judge_max_retries,
             retry_delay=self.judge_retry_delay
         )
@@ -252,7 +254,7 @@ class MedicalJudge(GreenAgent):
         
         # Initialize patient agent with retry config and roleplay examples
         patient = PatientAgent(
-            self._client, self._model, persona.character_description,
+            self._patient_client, self._patient_model, persona.character_description,
             max_retries=self.patient_max_retries,
             retry_delay=self.patient_retry_delay,
             use_roleplay_context=True,
@@ -518,23 +520,46 @@ async def main():
     parser.add_argument("--model", type=str, help="Model to use")
     args = parser.parse_args()
     
-    # Get configuration
-    api_key = args.api_key or os.getenv("API_KEY")
-    base_url = args.base_url or os.getenv("BASE_URL")
-    model = args.model or os.getenv("DEFAULT_MODEL", "gpt-4")
-    azure_api_version = os.getenv("AZURE_OPENAI_API_VERSION")
+    # Get default configuration
+    default_api_key = args.api_key or os.getenv("API_KEY")
+    default_base_url = args.base_url or os.getenv("BASE_URL")
+    default_model = args.model or os.getenv("DEFAULT_MODEL", "gemini-2.0-flash")
+    default_azure_api_version = os.getenv("AZURE_OPENAI_API_VERSION")
     
-    # Create OpenAI client
-    client_kwargs = {
-        "api_key": api_key,
-        "base_url": base_url,
+    # Get judge-specific configuration (falls back to defaults)
+    judge_api_key = os.getenv("JUDGE_API_KEY") or default_api_key
+    judge_base_url = os.getenv("JUDGE_BASE_URL") or default_base_url
+    judge_model = os.getenv("JUDGE_MODEL") or default_model
+    judge_azure_api_version = os.getenv("JUDGE_AZURE_API_VERSION") or default_azure_api_version
+    
+    # Get patient-specific configuration (falls back to judge config)
+    patient_api_key = os.getenv("PATIENT_API_KEY") or judge_api_key
+    patient_base_url = os.getenv("PATIENT_BASE_URL") or judge_base_url
+    patient_model = os.getenv("PATIENT_MODEL") or judge_model
+    patient_azure_api_version = os.getenv("PATIENT_AZURE_API_VERSION") or judge_azure_api_version
+    
+    # Create judge client
+    judge_client_kwargs = {
+        "api_key": judge_api_key,
+        "base_url": judge_base_url,
     }
+    if judge_azure_api_version:
+        judge_client_kwargs["default_headers"] = {"api-version": judge_azure_api_version}
+    judge_client = OpenAI(**judge_client_kwargs)
     
-    if azure_api_version:
-        client_kwargs["default_headers"] = {"api-version": azure_api_version}
-    
-    client = OpenAI(**client_kwargs)
-    
+    # Create patient client (only if different from judge)
+    patient_client = None
+    if (patient_api_key != judge_api_key or 
+        patient_base_url != judge_base_url or 
+        patient_azure_api_version != judge_azure_api_version):
+        patient_client_kwargs = {
+            "api_key": patient_api_key,
+            "base_url": patient_base_url,
+        }
+        if patient_azure_api_version:
+            patient_client_kwargs["default_headers"] = {"api-version": patient_azure_api_version}
+        patient_client = OpenAI(**patient_client_kwargs)
+        
     if args.cloudflare_quick_tunnel:
         from agentbeats.cloudflare import quick_tunnel
         agent_url_cm = quick_tunnel(f"http://{args.host}:{args.port}")
@@ -542,7 +567,7 @@ async def main():
         agent_url_cm = contextlib.nullcontext(args.card_url or f"http://{args.host}:{args.port}/")
     
     async with agent_url_cm as agent_url:
-        agent = MedicalJudge(client, model)
+        agent = MedicalJudge(judge_client, judge_model, patient_client, patient_model)
         executor = GreenExecutor(agent)
         agent_card = medical_judge_agent_card("MedicalDialogueJudge", agent_url)
         
